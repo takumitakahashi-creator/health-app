@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>体調管理Webアプリ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', 'メイリオ', Arial, sans-serif;
+      background: #f4f8fb;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 420px;
+      margin: 32px auto 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px #0001;
+      padding: 24px;
+    }
+    .app-title {
+      text-align: center;
+      color: #2d437c;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 18px;
+      border-bottom: 1.5px solid #e2e5f1;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      cursor: pointer;
+      color: #6070a0;
+      font-weight: 600;
+      transition: border-bottom 0.2s;
+      border-bottom: 2.5px solid transparent;
+      background: none;
+      outline: none;
+    }
+    .tab.active {
+      color: #3760c5;
+      border-bottom: 2.5px solid #3760c5;
+      background: #f2f6fc;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    /* カレンダー */
+    .calendar {
+      width: 100%;
+      margin-bottom: 18px;
+    }
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      text-align: center;
+      font-size: 1rem;
+    }
+    .calendar th, .calendar td {
+      padding: 7px 0;
+      height: 38px;
+      position: relative;
+    }
+    .calendar th {
+      color: #7992c9;
+      font-weight: 500;
+      background: #ecf3fd;
+      font-size: 0.96rem;
+    }
+    .calendar td {
+      background: #fafdff;
+      border-radius: 7px;
+      transition: background 0.15s;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 500;
+      color: #324a67;
+    }
+    .calendar td.empty {
+      background: transparent;
+      cursor: default;
+    }
+    .calendar td.selected {
+      background: #dbe5fb;
+      color: #3563b2;
+      font-weight: 700;
+    }
+    .calendar .dot {
+      position: absolute;
+      left: 50%;
+      bottom: 7px;
+      width: 7px;
+      height: 7px;
+      background: #3b6fdf;
+      border-radius: 50%;
+      transform: translateX(-50%);
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 1.03rem;
+      color: #3760c5;
+      font-weight: 600;
+    }
+    .month-arrow {
+      cursor: pointer;
+      user-select: none;
+      padding: 0 10px;
+      font-size: 1.3rem;
+    }
+    /* 記録表示 */
+    .day-record-view {
+      background: #f3f7fc;
+      padding: 13px 12px;
+      border-radius: 8px;
+      color: #355;
+      font-size: 1rem;
+      margin-bottom: 6px;
+    }
+    .day-record-view .record-label {
+      font-weight: 600;
+      color: #3f5ba7;
+      margin-bottom: 2px;
+    }
+    .day-record-view .not-recorded {
+      color: #99a;
+      font-size: 0.96em;
+    }
+    /* 記録フォーム */
+    .record-form {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-top: 4px;
+    }
+    .record-form label {
+      font-weight: 600;
+      color: #3d56a6;
+      font-size: 1.05em;
+      margin-bottom: 3px;
+    }
+    .record-form textarea,
+    .record-form input[type="number"] {
+      padding: 7px 9px;
+      border: 1px solid #bbd2fa;
+      border-radius: 6px;
+      font-size: 1em;
+      width: 100%;
+      resize: vertical;
+      background: #f4f7fb;
+    }
+    .record-form input[type="number"]::-webkit-input-placeholder,
+    .record-form textarea::-webkit-input-placeholder {
+      color: #98a7c7;
+    }
+    .record-form button {
+      margin-top: 9px;
+      padding: 11px 0;
+      background: #4367c5;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .record-form button:hover {
+      background: #264585;
+    }
+    /* 体重グラフ */
+    .weight-graph-container {
+      background: #f7fbff;
+      border-radius: 11px;
+      padding: 20px 10px 14px 10px;
+      margin: 0 0 6px 0;
+      min-height: 250px;
+    }
+    .footer {
+      margin-top: 60px;
+      color: #777;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+    @media (max-width: 520px) {
+      .container {
+        border-radius: 0;
+        margin: 0;
+        box-shadow: none;
+        max-width: 100vw;
+        padding: 5vw 2vw 28vw 2vw;
+      }
+      .weight-graph-container {
+        padding: 12px 2vw 10px 2vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app-title">体調管理Webアプリ</div>
+    <div class="tabs">
+      <button class="tab active" data-tab="calendar-tab">カレンダー</button>
+      <button class="tab" data-tab="graph-tab">体重グラフ</button>
+      <button class="tab" data-tab="record-tab">記録する</button>
+    </div>
+    <!-- カレンダー & 記録表示 -->
+    <div class="tab-content active" id="calendar-tab">
+      <div class="calendar">
+        <div class="calendar-header">
+          <span class="month-arrow" id="prev-month">&#9664;</span>
+          <span id="calendar-title"></span>
+          <span class="month-arrow" id="next-month">&#9654;</span>
+        </div>
+        <table class="calendar-table" id="calendar-table"></table>
+      </div>
+      <div class="day-record-view" id="calendar-record-view" style="display: none;"></div>
+    </div>
+    <!-- 体重グラフ -->
+    <div class="tab-content" id="graph-tab">
+      <div class="weight-graph-container">
+        <canvas id="weight-chart"></canvas>
+      </div>
+    </div>
+    <!-- 記録入力フォーム -->
+    <div class="tab-content" id="record-tab">
+      <form id="record-form" class="record-form" autocomplete="off">
+        <label for="record-date">日付</label>
+        <input type="date" id="record-date" required>
+        <label for="training-input">トレーニング内容</label>
+        <textarea id="training-input" rows="2" placeholder="例: ランニング30分、筋トレ10分"></textarea>
+        <label for="meal-input">食事内容</label>
+        <textarea id="meal-input" rows="2" placeholder="例: 朝食: 卵サンド、昼食: パスタ、夕食: 魚"></textarea>
+        <label for="weight-input">体重 (kg)</label>
+        <input type="number" id="weight-input" step="0.1" min="0" inputmode="decimal" placeholder="例: 72.5">
+        <button type="submit">記録する</button>
+      </form>
+      <div id="record-form-msg" style="color: #3b4; margin-top: 10px; font-weight: 600; display: none;"></div>
+    </div>
+  </div>
+  <div class="footer">
+    &copy; 2024 体調管理Webアプリ
+  </div>
+
+  <script>
+    // --- 定数・データ管理 ---
+    const STORAGE_KEY = "wellnessApp-records";
+    // データ形式: { [date: 'YYYY-MM-DD']: {training, meal, weight} }
+    function getSavedRecords() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    }
+    function saveRecords(records) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    }
+    // --- タブ切り替え ---
+    const tabButtons = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        if (btn.dataset.tab === 'graph-tab') {
+          renderWeightChart();
+        }
+      });
+    });
+
+    // --- カレンダー生成と操作 ---
+    const today = new Date();
+    let calendarYear = today.getFullYear();
+    let calendarMonth = today.getMonth();
+    const calendarTitle = document.getElementById('calendar-title');
+    const calendarTable = document.getElementById('calendar-table');
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+    let selectedCalendarDate = null;
+
+    prevMonthBtn.onclick = () => {
+      calendarMonth--;
+      if (calendarMonth < 0) {
+        calendarMonth = 11;
+        calendarYear--;
+      }
+      selectedCalendarDate = null;
+      renderCalendar();
+      hideDayRecord();
+    };
+
+    nextMonthBtn.onclick = () => {
+      calendarMonth++;
+      if (calendarMonth > 11) {
+        calendarMonth = 0;
+        calendarYear++;
+      }
+      selectedCalendarDate = null;
+      renderCalendar();
+      hideDayRecord();
+    };
+
+    function renderCalendar() {
+      const records = getSavedRecords();
+      calendarTitle.textContent = `${calendarYear}年 ${calendarMonth + 1}月`;
+      // 1日の曜日インデックス
+      const firstDay = new Date(calendarYear, calendarMonth, 1).getDay();
+      const lastDate = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+      let html = '<tr>';
+      const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+      for (let day of weekDays) {
+        html += `<th>${day}</th>`;
+      }
+      html += '</tr><tr>';
+      // 前の月の空マス
+      for (let i = 0; i < firstDay; i++) html += '<td class="empty"></td>';
+      // カレンダー日付
+      for (let date = 1; date <= lastDate; date++) {
+        const d = new Date(calendarYear, calendarMonth, date);
+        const dateStr = d.toISOString().slice(0,10);
+        let dot = '';
+        if(records[dateStr] && (
+          records[dateStr].training || records[dateStr].meal || (typeof records[dateStr].weight === 'number')
+        )) {
+          dot = '<span class="dot"></span>';
+        }
+        let cls = '';
+        if(selectedCalendarDate === dateStr) cls += ' selected';
+        html += `<td class="${cls}" data-date="${dateStr}">${date}${dot}</td>`;
+        if ((d.getDay()) === 6 && date !== lastDate) html += '</tr><tr>';
+      }
+      // 後ろの空マス
+      let lastDay = new Date(calendarYear, calendarMonth, lastDate).getDay();
+      for (let i = lastDay+1; i <= 6; i++) html += '<td class="empty"></td>';
+      html += '</tr>';
+      calendarTable.innerHTML = html;
+      // 日付クリック
+      calendarTable.querySelectorAll('td[data-date]').forEach(td => {
+        td.onclick = function() {
+          calendarTable.querySelectorAll('td').forEach(_td=>_td.classList.remove('selected'));
+          td.classList.add('selected');
+          selectedCalendarDate = td.dataset.date;
+          showDayRecord(selectedCalendarDate);
+        }
+      });
+    }
+
+    // --- 日別記録の表示 ---
+    function hideDayRecord() {
+      document.getElementById('calendar-record-view').style.display = "none";
+    }
+    function showDayRecord(dateStr) {
+      const records = getSavedRecords();
+      const rec = records[dateStr];
+      const ev = document.getElementById('calendar-record-view');
+      if (rec) {
+        let html = `<div class="record-label">${dateStr.replace(/-/g, '/')} の記録</div>`;
+        if (rec.training) html += `<div>トレーニング: ${sanitize(rec.training)}</div>`;
+        if (rec.meal)     html += `<div>食事: ${sanitize(rec.meal)}</div>`;
+        if (typeof rec.weight === 'number') html += `<div>体重: ${rec.weight} kg</div>`;
+        if (!rec.training && !rec.meal && typeof rec.weight !== 'number')
+          html += `<div class="not-recorded">記録がありません。</div>`;
+        ev.innerHTML = html;
+        ev.style.display = "block";
+      } else {
+        ev.innerHTML = `<div class="not-recorded">${dateStr.replace(/-/g, '/')} の記録はありません。</div>`;
+        ev.style.display = "block";
+      }
+    }
+    function sanitize(str) {
+      const span = document.createElement('span');
+      span.innerText = str;
+      return span.innerHTML.replace(/\n/g,"<br>");
+    }
+
+    // --- 記録フォーム操作 ---
+    document.getElementById('record-date').value = today.toISOString().slice(0,10);
+    document.getElementById('record-form').onsubmit = function(e){
+      e.preventDefault();
+      const date = document.getElementById('record-date').value;
+      const training = document.getElementById('training-input').value.trim();
+      const meal = document.getElementById('meal-input').value.trim();
+      const weightStr = document.getElementById('weight-input').value.trim();
+      let weight = undefined;
+      if (weightStr !== '') {
+        weight = parseFloat(weightStr);
+        if (isNaN(weight) || weight <= 0) {
+          alert("体重は正しい数値で入力してください。");
+          return;
+        }
+      }
+      let records = getSavedRecords();
+      if (!records[date]) records[date] = {};
+      if (training) records[date].training = training; else delete records[date].training;
+      if (meal) records[date].meal = meal; else delete records[date].meal;
+      if (weightStr !== '') records[date].weight = weight;
+      else delete records[date].weight;
+      // すべて空なら記録自体消す
+      if (!records[date].training && !records[date].meal && typeof records[date].weight !== 'number') {
+        delete records[date];
+      }
+      saveRecords(records);
+      showFormMsg("記録を保存しました。");
+      renderCalendar();
+      if (document.getElementById('calendar-tab').classList.contains('active')) {
+        hideDayRecord();
+      }
+      // 入力値リセット
+      //document.getElementById('record-form').reset();
+    };
+    // 成功メッセージ表示
+    function showFormMsg(msg) {
+      const dom = document.getElementById('record-form-msg');
+      dom.style.display = "block";
+      dom.textContent = msg;
+      setTimeout(()=>{ dom.style.display = "none"; }, 1700);
+    }
+
+    // --- 体重グラフ Chart.js ---
+    let chartInstance = null;
+    function renderWeightChart() {
+      const ctx = document.getElementById('weight-chart').getContext('2d');
+      const records = getSavedRecords();
+      // {date: {_,_, weight}}から体重記録の日付・値配列
+      const wEntries = Object.entries(records)
+        .filter(([date, rec]) => typeof rec.weight === 'number')
+        .sort(([a], [b]) => a.localeCompare(b));
+      const labels = wEntries.map(([d]) => d.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$1/$2/$3"));
+      const datas = wEntries.map(([, rec]) => rec.weight);
+
+      if (chartInstance) {
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = datas;
+        chartInstance.update();
+        return;
+      }
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '体重 (kg)',
+            data: datas,
+            fill: false,
+            borderColor: "#3b82f6",
+            backgroundColor: "#3177e8",
+            tension: 0.13,
+            pointRadius: 4,
+            pointBackgroundColor: "#589cf7"
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            title: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              title: { display: true, text: 'kg', color: '#236' },
+              ticks: { color: '#325a97' },
+              grid: { color: '#e7edfa' }
+            },
+            x: {
+              title: { display: false },
+              ticks: { color: '#4976c0', font: {weight:"bold"} },
+              grid: { color: '#e7edfa' }
+            }
+          }
+        }
+      });
+    }
+
+    // --- 初期化処理 ---
+    renderCalendar();
+    // タブ切り替え時にも体重グラフ更新
+
+    // 画面小さい場合スクロール位置調整
+    if(window.innerWidth < 500){
+      window.scrollTo(0, 0);
+    }
+
+  </script>
+</body>
+</html>
