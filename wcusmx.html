@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワールドカップ出場国すべて紹介！！</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #e7f0fd 0%, #fdf6ea 100%);
+      font-family: "Helvetica Neue", Helvetica, Arial, "Meiryo", sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #222;
+    }
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 40px rgba(21, 32, 64, 0.10);
+      padding: 40px 32px 32px 32px;
+      text-align: center;
+      position: relative;
+    }
+    .title {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #14783c;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+      text-shadow: 1px 2px 10px rgba(52,120,60,0.10);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .flag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px 36px;
+      justify-content: center;
+      padding: 24px 0 0 0;
+    }
+    .nation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 110px;
+      border-radius: 12px;
+      background: #f7fafc;
+      box-shadow: 0 2px 7px rgba(20,120,60,0.05);
+      padding: 16px 8px;
+      transition: transform 0.15s;
+    }
+    .nation:hover {
+      background: #e5fae8;
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 6px 14px rgba(20,120,60,0.10);
+    }
+    .flag-emoji {
+      font-size: 2.8rem;
+      margin-bottom: 0.45em;
+      filter: drop-shadow(1px 2px 1px #e0e0e0);
+    }
+    .nation-name {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: #04592f;
+    }
+    .footer-ball {
+      font-size: 2rem;
+      position: absolute;
+      right: 30px;
+      bottom: -36px;
+      opacity: 0.88;
+      transform: rotate(-18deg);
+      filter: drop-shadow(0 2px 4px rgba(60, 60, 60, 0.1));
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">
+      <span>⚽</span>
+      ワールドカップ出場国すべて紹介！！
+      <span>🌍</span>
+    </div>
+    <div class="flag-list">
+      <div class="nation">
+        <span class="flag-emoji">🇯🇵</span>
+        <div class="nation-name">日本</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇧🇷</span>
+        <div class="nation-name">ブラジル</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇩🇪</span>
+        <div class="nation-name">ドイツ</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇦🇷</span>
+        <div class="nation-name">アルゼンチン</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇪🇸</span>
+        <div class="nation-name">スペイン</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇫🇷</span>
+        <div class="nation-name">フランス</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇬🇧</span>
+        <div class="nation-name">イングランド</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇸🇳</span>
+        <div class="nation-name">セネガル</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇲🇽</span>
+        <div class="nation-name">メキシコ</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇺🇸</span>
+        <div class="nation-name">アメリカ</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇵🇹</span>
+        <div class="nation-name">ポルトガル</div>
+      </div>
+      <div class="nation">
+        <span class="flag-emoji">🇦🇺</span>
+        <div class="nation-name">オーストラリア</div>
+      </div>
+    </div>
+    <div class="footer-ball">⚽</div>
+  </div>
+  <footer style="margin-top: 80px; color: #777; text-align: center; font-size: 1.02rem;">
+    <span style="font-size:1.1em;">&copy; 2024 All About World Cup Teams!</span>
+  </footer>
+</body>
+</html>
+<style>
+  /* 国旗ロゴ画像を少し大きめに表示用 */
+  .nation-flag-img {
+    display: block;
+    margin: 6px auto 0 auto;
+    width: 36px;
+    height: 24px;
+    object-fit: contain;
+  }
+</style>
+<script>
+  // 各国と国旗画像のマッピング
+  const countryFlags = {
+    "ブラジル": "https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg",
+    "ドイツ": "https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg",
+    "アルゼンチン": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg",
+    "スペイン": "https://upload.wikimedia.org/wikipedia/en/9/9a/Flag_of_Spain.svg",
+    "フランス": "https://upload.wikimedia.org/wikipedia/en/c/c3/Flag_of_France.svg",
+    "イングランド": "https://upload.wikimedia.org/wikipedia/commons/b/be/Flag_of_England.svg",
+    "セネガル": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Flag_of_Senegal.svg",
+    "メキシコ": "https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg",
+    "アメリカ": "https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg",
+    "ポルトガル": "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_Portugal.svg",
+    "オーストラリア": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Flag_of_Australia.svg"
+  };
+
+  window.addEventListener("DOMContentLoaded", function() {
+    // すべての.nation-name要素を取得
+    document.querySelectorAll('.nation-name').forEach(function(nameDiv) {
+      const countryName = nameDiv.textContent.trim();
+      const flagUrl = countryFlags[countryName];
+      if(flagUrl) {
+        // すでに画像が追加されていなければ追加
+        if (!nameDiv.nextElementSibling || !nameDiv.nextElementSibling.classList.contains('nation-flag-img')) {
+          const img = document.createElement('img');
+          img.className = 'nation-flag-img';
+          img.src = flagUrl;
+          img.alt = countryName + "の国旗";
+          nameDiv.parentNode.insertBefore(img, nameDiv.nextSibling);
+        }
+      }
+    });
+  });
+</script>
+<script>
+  // 日本の国旗を追加
+  countryFlags["日本"] = "https://upload.wikimedia.org/wikipedia/en/9/9e/Flag_of_Japan.svg";
+</script>
+<!-- クールな印象のための装飾付き見出しサンプル -->
+<style>
+.cool-heading {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #fff;
+  padding: 22px 0 18px 0;
+  background: linear-gradient(95deg, #188a39 40%, #1865c9 100%);
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 6px 22px rgba(24,129,90,0.10);
+  position: relative;
+  letter-spacing: 0.08em;
+  margin: 0 auto 32px auto;
+  width: min(97%, 680px);
+  text-align: center;
+  overflow: hidden;
+  z-index: 1;
+}
+.cool-heading::after {
+  content: '';
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 120%;
+  height: 30%;
+  background: linear-gradient(90deg, rgba(186,240,207,0.10), rgba(152,207,255,0.14));
+  filter: blur(12px);
+  transform: translate(-50%, 0) rotate(-7deg);
+  z-index: 0;
+  pointer-events: none;
+}
+.cool-heading .icon-ball {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0.18em 0 0;
+  font-size: 1.06em;
+  filter: drop-shadow(0 1px 1px rgba(51,120,200,0.14));
+}
+.cool-heading .icon-cup {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.18em;
+  font-size: 1.15em;
+  filter: drop-shadow(0 1px 2px rgba(200, 170, 30, 0.09));
+}
+</style>
+
+<script>
+  // body開始直後の.container直前にh1を挿入
+  document.addEventListener("DOMContentLoaded", function() {
+    const container = document.querySelector('body .container');
+    if(container && !document.querySelector('.cool-heading')) {
+      const header = document.createElement('h1');
+      header.className = "cool-heading";
+      header.innerHTML = '<span class="icon-ball">⚽️</span>ワールドカップ出場国すべて紹介！！<span class="icon-cup">🏆</span>';
+      container.parentNode.insertBefore(header, container);
+    }
+  });
+</script>
+<!-- 
+このスペースは意図的に空白のまま残しています。
+理由： .cool-heading の <h1> タグ（ワールドカップ出場国すべて紹介！！）はJavaScriptでDOM生成されるため、
+HTML本体側に同じタイトルが静的に二重記載されていた場合は、その一方（通常は本体静的HTML側のもの）を削除してください。
+このファイル（wcusmx.html）ではタイトルがスクリプトでのみ挿入されているため、ここで追加や複製する必要はありません。
+-->
+<div class="container">
+  <h1 class="cool-heading" style="margin-bottom: 18px;">
+    <span class="icon-ball">⚽️</span>
+    <span style="
+      background: linear-gradient(90deg, #2ad879 20%, #1485cb 80%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      font-weight: 900;
+      letter-spacing: 1.6px;
+      padding: 0 8px;">
+      ワールドカップ出場国すべて紹介！！
+    </span>
+    <span class="icon-cup">🏆</span>
+  </h1>
+  <!-- ここに続く国リスト等の内容を入れてください -->
+</div>
+<div style="margin-top:36px;text-align:center;">
+  <button id="japan-btn" style="background:#f13838;color:#fff;font-weight:700;padding:11px 28px;font-size:1.1rem;border:none;border-radius:7px;cursor:pointer;box-shadow:0 2px 8px rgba(200,38,38,0.10);transition:background 0.15s;">日本代表を見る</button>
+</div>
+<div id="japan-team"></div>
+<div id="japan-info" style="max-width:480px;margin:36px auto 0 auto;display:none;background:#e8f7ff;border-radius:13px;box-shadow:0 2px 8px rgba(20,120,200,0.08);padding:28px 22px 17px 22px;text-align:left;">
+
+  <div style="font-size:1.35rem;font-weight:800;color:#005bbb;margin-bottom:10px;text-align:center;">
+    🇯🇵 日本代表
+  </div>
+  <table style="width:100%;margin-bottom:20px;font-size:0.97rem;">
+    <tr>
+      <td style="font-weight:bold;width:6em;color:#005bbb;">W杯出場</td>
+      <td>7回（1998, 2002, 2006, 2010, 2014, 2018, 2022）</td>
+    </tr>
+    <tr>
+      <td style="font-weight:bold;color:#005bbb;">監督</td>
+      <td>森保 一（はじめ）</td>
+    </tr>
+    <tr>
+      <td style="font-weight:bold;color:#005bbb;">注目選手</td>
+      <td>三笘 薫（MF）、伊東 純也（FW）、久保 建英（MF）</td>
+    </tr>
+  </table>
+
+  <div style="margin-bottom:7px;font-weight:700;font-size:1.09rem;text-align:center;color:#14783c;">予想フォーメーション（4-2-3-1）</div>
+  <div style="overflow-x:auto;">
+    <table style="background:#fff;border-radius:8px;margin:0 auto 4px auto;padding:0.8em;width:100%;box-shadow:0 1px 5px rgba(30,120,150,0.08);border-collapse:separate;border-spacing:0.08em;">
+      <tbody>
+        <tr style="height:2.5em;">
+          <td colspan="5" style="text-align:center;"><span style="font-size:1.09em;">【GK】</span> <b>1. シュミット・ダニエル</b></td>
+        </tr>
+        <tr style="height:2.4em;">
+          <td></td>
+          <td style="text-align:center;"><span style="font-size:1.09em;">【DF】</span><b>16. 毎熊 晟矢</b></td>
+          <td style="text-align:center;"><b>22. 吉田 麻也</b></td>
+          <td style="text-align:center;"><b>4. 板倉 滉</b></td>
+          <td style="text-align:center;"><b>21. 伊藤 洋輝</b></td>
+        </tr>
+        <tr style="height:2.3em;">
+          <td></td>
+          <td colspan="2" style="text-align:center;"><span style="font-size:1.09em;">【MF】</span><b>6. 遠藤 航</b></td>
+          <td colspan="2" style="text-align:center;"><b>8. 守田 英正</b></td>
+        </tr>
+        <tr style="height:2.3em;">
+          <td style="text-align:center;"><span style="font-size:1.09em;">【MF】</span><b>14. 伊東 純也</b></td>
+          <td colspan="3" style="text-align:center;"><b>11. 三笘 薫</b>　<b>20. 久保 建英</b></td>
+          <td style="text-align:center;"><b>10. 南野 拓実</b></td>
+        </tr>
+        <tr style="height:2.5em;">
+          <td colspan="5" style="text-align:center;"><span style="font-size:1.09em;">【FW】</span> <b>9. 上田 綺世</b></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="margin-top:8px;font-size:0.93em;color:#467;font-style:italic;text-align:center;">
+    ※ 2024年予想メンバー
+  </div>
+</div>
+<script>
+  document.getElementById('japan-btn').addEventListener('click', function() {
+    var info = document.getElementById('japan-info');
+    info.style.display = (info.style.display === 'none' || info.style.display === '') ? 'block' : 'none';
+    window.scrollTo({
+      top: info.offsetTop - 40,
+      behavior: 'smooth'
+    });
+  });
+</script>
+<script>
+  // 1ページ目(index.html)から「JP」を押された場合にこの日本代表情報へジャンプできるようリッスン
+  // 親から postMessage を受けたとき「japan-info」を開いてスクロール
+  window.addEventListener("message", function(event) {
+    // セキュリティのため、同じオリジンまたは信頼できるものだけ許容 (要調整)
+    // ここではワイルドカードで許可していますが、実運用時は event.origin で判定しましょう
+    if(event.data === "show-japan-info") {
+      var info = document.getElementById('japan-info');
+      if (info.style.display === 'none' || info.style.display === '') {
+        info.style.display = 'block';
+      }
+      window.scrollTo({
+        top: info.offsetTop - 40,
+        behavior: 'smooth'
+      });
+    }
+  }, false);
+</script>
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+</style>
+<script>
+  // 日本の国旗画像クリックで日本代表情報を表示してアンカーへ移動
+  document.addEventListener("DOMContentLoaded", function() {
+    var japanInfo = document.getElementById("japan-info");
+    document.querySelectorAll('.nation-flag-img').forEach(function(img) {
+      if (img.alt && img.alt.indexOf("日本") !== -1) {
+        if (!(img.parentElement.tagName === "A" && img.parentElement.getAttribute("href") === "#japan-team")) {
+          var a = document.createElement("a");
+          a.href = "#japan-team";
+          a.title = "日本代表情報へ";
+          a.addEventListener("click", function() {
+            if (japanInfo && (japanInfo.style.display === "none" || japanInfo.style.display === "")) {
+              japanInfo.style.display = "block";
+            }
+          });
+          img.parentNode.insertBefore(a, img);
+          a.appendChild(img);
+        }
+      }
+    });
+  });
+</script>
