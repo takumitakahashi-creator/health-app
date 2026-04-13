@@ -266,6 +266,13 @@
     function saveRecords(records) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     }
+    /** ローカル日付を YYYY-MM-DD に（toISOString は UTC のため日本などで1日ずれる） */
+    function formatDateYMD(d) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
     // --- タブ切り替え ---
     const tabButtons = document.querySelectorAll('.tab');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -330,7 +337,7 @@
       // カレンダー日付
       for (let date = 1; date <= lastDate; date++) {
         const d = new Date(calendarYear, calendarMonth, date);
-        const dateStr = d.toISOString().slice(0,10);
+        const dateStr = formatDateYMD(d);
         let dot = '';
         if(records[dateStr] && (
           records[dateStr].training || records[dateStr].meal || (typeof records[dateStr].weight === 'number')
@@ -387,7 +394,7 @@
     }
 
     // --- 記録フォーム操作 ---
-    document.getElementById('record-date').value = today.toISOString().slice(0,10);
+    document.getElementById('record-date').value = formatDateYMD(today);
     document.getElementById('record-form').onsubmit = function(e){
       e.preventDefault();
       const date = document.getElementById('record-date').value;
@@ -414,6 +421,7 @@
       }
       saveRecords(records);
       showFormMsg("記録を保存しました。");
+      if (typeof updateCards === "function") updateCards();
       renderCalendar();
       if (document.getElementById('calendar-tab').classList.contains('active')) {
         hideDayRecord();
@@ -603,25 +611,17 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
     // ※既にこの位置なら何もしなくてよい
   })();
 
-  // --- 各種データ取得関数 ---
-  // 仮: 体重記録データの取得関数。既存JSで配列名違えば要編集
-  function getWeightRecords() {
-    // 例えば window.weightData など既存データ利用, なければ空配列返す
-    if (window.weightData && Array.isArray(window.weightData)) {
-      return window.weightData;
-    }
-    // localStorage等に保存されている場合は適宜取得
-    return [];
-  }
-
-  // --- 現在の体重(最新日付のもの)を取得 ---
+  // --- 現在の体重: 記録フォームと同じ localStorage（getSavedRecords）のうち、日付が最も新しく体重があるもの ---
   function findCurrentWeight() {
-    const records = getWeightRecords();
-    if (!records.length) return null;
-    // 日付が 'YYYY-MM-DD' 形式であることを想定
-    records.sort((a, b) => (a.date > b.date ? -1 : 1));
-    // 複数同日があれば最大インデックス
-    return records[0].weight;
+    const records = getSavedRecords();
+    const dates = Object.keys(records);
+    if (dates.length === 0) return null;
+    dates.sort();
+    for (let i = dates.length - 1; i >= 0; i--) {
+      const w = records[dates[i]]?.weight;
+      if (typeof w === "number" && !isNaN(w)) return w;
+    }
+    return null;
   }
 
   // --- 今月指定の年月キーの生成 ---
@@ -669,8 +669,74 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
   // 初期ロード またはタブ切り替え時再ロードに呼び出す想定
   updateCards();
 
-  // (応用) weightDataの記録追加時にも updateCards() を呼んで最新値反映推奨
+  // 記録フォーム保存時はメインのスクリプトから updateCards() を呼ぶ
+</script>
+<!-- INSERT_YOUR_CODE -->
+<script>
+/*
+日付が1日ずつズレる原因は、おそらく Date オブジェクトが
+  new Date(YYYY, MM, DD)
+などで生成された際に、タイムゾーンや時刻設定の影響で前日になる場合（例: 時間が00:00以外で生成される、または実装中でtoLocaleDateStringなど日付抜粋時のズレ）があるため。
 
-  // --- 既存体重データ追加時に自動反映したい場合（例: 記録入力フォームあり等） ---
-  // 例: window.onWeightRecordsChanged = updateCards;
+根本解決として、日付ボタンやカレンダーから受け取った日付で、
+  new Date(YYYY, MM, DD)
+の直後に setHours(12,0,0,0) のように「必ずその日の正午」など、時刻を揃えてから使うことでズレを防げます。
+
+（例）
+  let d = new Date(2024, 3, 1); // 2024年4月1日 (月は0ベース！)
+  d.setHours(12,0,0,0); // 正午固定
+
+また、ユーザーから日付を input type="date" などで取得していた場合、
+  new Date(inputValue)
+だとローカルタイムゾーンの影響を受けるので、
+  inputValue.split('-').map(Number); // [YYYY, MM, DD] （MMは1〜12）
+  new Date(YYYY, MM-1, DD);
+
+の形も推奨です。
+
+【全体的なTips/修正書き換え例】
+- 「日付ピッカーや押した日」に基づく新しいDate生成時は必ず setHours(12, 0, 0, 0) でズレ防止
+- 必要に応じて getYearMonthKey などのヘルパーでも内部で setHours を用いる
+
+【下記は参考用：日付入力時のズレ防止用ユーティリティ関数（あなたのアプリ全体に追加推奨）】
+*/
+
+// 日付（日・月・年）から Date を安全に作る
+function createLocalDateFromYMD(y, m, d) {
+  const date = new Date(Number(y), Number(m) - 1, Number(d));
+  date.setHours(12,0,0,0); // 時差ズレを避けるため正午へ
+  return date;
+}
+
+// input type="date" の value ("2024-04-01"など) から安全なDateを作る
+function createLocalDateFromInput(inputVal) {
+  const [y, m, d] = inputVal.split('-');
+  return createLocalDateFromYMD(y, m, d);
+}
+
+/* ----
+実際には「日付ボタン」や「カレンダークリック」イベントで
+  let d = new Date(...);
+で生成していた部分を
+
+  let d = createLocalDateFromYMD(y, m, d);
+
+や
+
+  let d = createLocalDateFromInput(input.value);
+
+などで置き換えればOKです。
+---- */
+
+/*
+もし明確に問題が起こっている箇所が
+  new Date(year, month, day)
+とか new Date(dateString) の形であれば、
+そのすぐ後に setHours(12,0,0,0) を追加してください。
+（たとえば: let d = new Date(y, m, d); d.setHours(12,0,0,0);）
+*/
+
+/* これらの関数を既存処理（体重記録の日付決定や、カレンダー選択など）に適用すれば、
+　押した日付が正しく反応するようになります。
+*/
 </script>
