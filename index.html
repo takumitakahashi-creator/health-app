@@ -616,6 +616,10 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
     <label>来月のGAP</label>
     <div class="weight-value" id="nextMonthGapValue">-- kg</div>
   </div>
+  <div class="weight-card" id="monthProgressCard">
+    <label>今月の進捗</label>
+    <div class="weight-value" id="monthProgressValue">--</div>
+  </div>
 </div>
 
 <script>
@@ -666,6 +670,13 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
     return `${gap >= 0 ? "+" : ""}${gap.toFixed(1)} kg`;
   }
 
+  function formatMonthProgress(dateObj = new Date()) {
+    const day = dateObj.getDate();
+    const lastDay = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0).getDate();
+    const remaining = lastDay - day;
+    return `${day}日：残り${remaining}日`;
+  }
+
   // --- 表示の更新 ---
   function updateCards() {
     // 現在の体重
@@ -686,6 +697,18 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
     const nextGoalNum = nextGoal ? Number(nextGoal) : null;
     document.getElementById('thisMonthGapValue').textContent = formatGap(w, goalNum);
     document.getElementById('nextMonthGapValue').textContent = formatGap(w, nextGoalNum);
+    // 今月の何日目か / 残り日数
+    document.getElementById('monthProgressValue').textContent = formatMonthProgress();
+  }
+
+  function scheduleDailyCardsRefresh() {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 5);
+    const waitMs = next.getTime() - now.getTime();
+    setTimeout(() => {
+      updateCards();
+      scheduleDailyCardsRefresh();
+    }, waitMs);
   }
 
   // --- 保存ボタンクリック ---
@@ -714,6 +737,8 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
   // --- 起動時表示 ---
   // 初期ロード またはタブ切り替え時再ロードに呼び出す想定
   updateCards();
+  // 日付が変わるたびに自動更新
+  scheduleDailyCardsRefresh();
 
   // 記録フォーム保存時はメインのスクリプトから updateCards() を呼ぶ
 </script>
