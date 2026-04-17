@@ -600,6 +600,22 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
       <button id="saveGoalWeightBtn">保存</button>
     </div>
   </div>
+  <div class="weight-card" id="nextGoalWeightCard">
+    <label>来月の目標</label>
+    <div class="weight-value" id="nextGoalWeightValue">-- kg</div>
+    <div class="goal-weight-input-group">
+      <input type="number" id="nextGoalWeightInput" min="20" max="350" step="0.1" placeholder="kg">
+      <button id="saveNextGoalWeightBtn">保存</button>
+    </div>
+  </div>
+  <div class="weight-card" id="thisMonthGapCard">
+    <label>今月のGAP</label>
+    <div class="weight-value" id="thisMonthGapValue">-- kg</div>
+  </div>
+  <div class="weight-card" id="nextMonthGapCard">
+    <label>来月のGAP</label>
+    <div class="weight-value" id="nextMonthGapValue">-- kg</div>
+  </div>
 </div>
 
 <script>
@@ -625,20 +641,29 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
   }
 
   // --- 今月指定の年月キーの生成 ---
-  function getYearMonthKey(dateObj = new Date()) {
-    return dateObj.getFullYear() + "-" + String(dateObj.getMonth() + 1).padStart(2, "0");
+  function getYearMonthKey(dateObj = new Date(), monthOffset = 0) {
+    const d = new Date(dateObj.getFullYear(), dateObj.getMonth() + monthOffset, 1);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
   }
 
   // --- 今月の目標体重, 保存/取得 ---
-  function saveGoalWeightToStorage(val, dateObj = new Date()) {
+  function saveGoalWeightToStorage(val, dateObj = new Date(), monthOffset = 0) {
     if (!val) return;
-    const ymKey = "goalWeight_" + getYearMonthKey(dateObj);
+    const ymKey = "goalWeight_" + getYearMonthKey(dateObj, monthOffset);
     localStorage.setItem(ymKey, String(val));
   }
-  function getGoalWeightFromStorage(dateObj = new Date()) {
-    const ymKey = "goalWeight_" + getYearMonthKey(dateObj);
+  function getGoalWeightFromStorage(dateObj = new Date(), monthOffset = 0) {
+    const ymKey = "goalWeight_" + getYearMonthKey(dateObj, monthOffset);
     const value = localStorage.getItem(ymKey);
     return value ? value : null;
+  }
+
+  function formatGap(currentWeight, goalWeight) {
+    if (currentWeight === null || currentWeight === undefined || goalWeight === null || goalWeight === undefined) {
+      return "-- kg";
+    }
+    const gap = currentWeight - goalWeight;
+    return `${gap >= 0 ? "+" : ""}${gap.toFixed(1)} kg`;
   }
 
   // --- 表示の更新 ---
@@ -651,6 +676,16 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
     document.getElementById('goalWeightValue').textContent = goal ? goal + " kg" : "-- kg";
     // 入力量には現在値セット
     document.getElementById('goalWeightInput').value = goal ? goal : "";
+    // 来月の目標
+    const nextGoal = getGoalWeightFromStorage(new Date(), 1);
+    document.getElementById('nextGoalWeightValue').textContent = nextGoal ? nextGoal + " kg" : "-- kg";
+    // 入力量には現在値セット
+    document.getElementById('nextGoalWeightInput').value = nextGoal ? nextGoal : "";
+    // 今月/来月のGAP（現在の体重 - 目標体重）
+    const goalNum = goal ? Number(goal) : null;
+    const nextGoalNum = nextGoal ? Number(nextGoal) : null;
+    document.getElementById('thisMonthGapValue').textContent = formatGap(w, goalNum);
+    document.getElementById('nextMonthGapValue').textContent = formatGap(w, nextGoalNum);
   }
 
   // --- 保存ボタンクリック ---
@@ -662,6 +697,17 @@ git config --global user.email "takumi.takahashi@smaregi.jp"
       return;
     }
     saveGoalWeightToStorage(Number(v));
+    updateCards();
+  });
+
+  document.getElementById('saveNextGoalWeightBtn').addEventListener('click', function() {
+    const input = document.getElementById('nextGoalWeightInput');
+    const v = input.value.trim();
+    if (v === "" || isNaN(v)) {
+      alert("目標体重を数値で入力してください");
+      return;
+    }
+    saveGoalWeightToStorage(Number(v), new Date(), 1);
     updateCards();
   });
 
